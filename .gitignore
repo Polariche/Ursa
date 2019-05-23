@@ -1,0 +1,4 @@
+*.db
+migrations/
+__pycache__/
+secrets.py
