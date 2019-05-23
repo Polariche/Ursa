@@ -28,9 +28,9 @@ def fetch():
 @app.route('/save', methods=['POST'])
 def save():
     status = 500
-    reg_full = r'[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?'
-    reg_core = r'([https]{4,5}:\/\/[-a-zA-Z0-9@:%_\+.~#?&=]{2,256}\.[a-z]{2,4}\b)\/?'
-    reg_name = r'[https]{4,5}:\/\/(?:.*\.)?([-a-zA-Z0-9@:%_\+~#?&=]{1,})\.[a-z]{2,4}\b\/?'
+    reg_full = r'[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z\.]{2,5}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?'
+    reg_core = r'([https]{4,5}:\/\/[-a-zA-Z0-9@:%_\+.~#?&=]{2,256}\.[a-z\.]{2,5}\b)\/?'
+    reg_name = r'[https]{4,5}:\/\/(?:.*\.)?([-a-zA-Z0-9@:%_\+~#?&=]{1,})\.[a-z\.]{2,5}\b\/?'
     link = request.form.get('link')
 
     # validity check
@@ -64,7 +64,7 @@ def save():
 
         try:
             # higher quality
-            favicon = re.search('<link rel="(?:shortcut)?\s?icon" [^>]*? href="(.*?)"', txt, re.IGNORECASE).group(1)
+            favicon = re.search(r'<link rel="(?:shortcut )?icon"[^>]*?href="(.*?)"', txt, re.IGNORECASE).group(1)
             
             if not re.search(reg_core, favicon):
                 favicon = corelink+favicon
