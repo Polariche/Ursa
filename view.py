@@ -48,7 +48,7 @@ def save():
     # Some of website doesn't even respond (or lack a title), so there has to be a default title
     title = re.match(reg_name, corelink).group(1).title()
     print(link)
-    print(name)
+    print(title)
 
     # Default values
     o = {'link': link, 'title': title, 'favicon': corelink+'/favicon.ico'}
@@ -64,7 +64,7 @@ def save():
 
         try:
             # higher quality
-            favicon = re.search('<link rel="(?:shortcut)?\s?icon" .*? href="(.*?)"', txt, re.IGNORECASE).group(1)
+            favicon = re.search('<link rel="(?:shortcut)?\s?icon" [^>]*? href="(.*?)"', txt, re.IGNORECASE).group(1)
             
             if not re.search(reg_core, favicon):
                 favicon = corelink+favicon
