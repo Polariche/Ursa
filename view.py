@@ -29,7 +29,8 @@ def fetch():
 def save():
     status = 500
     reg_full = r'[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?'
-    reg_core = r'.*?://[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b'
+    reg_core = r'([https]{4,5}:\/\/[-a-zA-Z0-9@:%_\+.~#?&=]{2,256}\.[a-z]{2,4}\b)\/?'
+    reg_name = r'[https]{4,5}:\/\/(?:.*\.)?([-a-zA-Z0-9@:%_\+~#?&=]{1,})\.[a-z]{2,4}\b\/?'
     link = request.form.get('link')
 
     # validity check
@@ -43,27 +44,41 @@ def save():
     if link[:8] != 'https://' and link[:7] != 'http://':
         link = 'https://'+link
 
-    corelink = re.match(reg_core, link).group()
+    corelink = re.match(reg_core, link).group(1)
+    # Some of website doesn't even respond (or lack a title), so there has to be a default title
+    title = re.match(reg_name, corelink).group(1).title()
     print(link)
+    print(name)
+
+    # Default values
+    o = {'link': link, 'title': title, 'favicon': corelink+'/favicon.ico'}
 
     try:
-        rq = requests.get(url=link, timeout=10)
+        rq = requests.get(url=link, timeout=3)
+        txt = rq.text
+
+        try:
+            o['title'] = re.search('<title>(.*?)</title', txt, re.IGNORECASE).group(1)
+        except AttributeError:
+            print("Could not find title")
+
+        try:
+            # higher quality
+            favicon = re.search('<link rel="(?:shortcut)?\s?icon" .*? href="(.*?)"', txt, re.IGNORECASE).group(1)
+            
+            if not re.search(reg_core, favicon):
+                favicon = corelink+favicon
+
+            if favicon[-3:] == 'png' or favicon[-3:] == 'ico':
+                o['favicon'] = favicon
+
+            print(o['favicon'])
+        except AttributeError:
+            print("No link rel='icon' ")
+
     except Timeout:
-        status = 408
-        o = {'status': status, 'message': 'Request timed out'}
-        return make_response(jsonify(o), status)
+        print("Timed Out")
 
-    txt = rq.text
-
-    o = {'link': link, 'title': None, 'favicon': None}
-
-    try:
-        o['title'] = re.search('<title>(.*?)</title', txt, re.IGNORECASE).group(1)
-    except AttributeError:
-        print("Could not find title")
-
-    o['favicon'] = corelink+'/favicon.ico'
-        
 
     # Save link data to DB
     # If link already exists, don't save; return message

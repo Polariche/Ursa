@@ -64,8 +64,9 @@ function save(t) {
 };
 
 function remove(id, link) {
+    $('#'+id).remove();
     $.post("/remove", {link: link}, function(data) {
-        $('#'+id).remove();
+        
     });
 }
 
