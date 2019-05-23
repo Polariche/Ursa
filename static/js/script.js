@@ -3,8 +3,7 @@ var things;
 
 function link_html(json) {
     //TODO: DOM 스타일로 바꾸기
-    
-    return "<p id="+json.id+"> <a class='link' href="+ json.link + ">" + json.title + "</a> x </p>";
+    return "<p id="+json.id+"> <a class='link' href="+ json.link + "> <img src="+json.favicon+" width='16px' height='16px'>" + json.title + "</a> <a onclick=\"remove("+json.id+", \'"+json.link+"\')\" href='#'> x </a> </p>";
 }
 
 function fetch() {
@@ -64,9 +63,9 @@ function save(t) {
     });
 };
 
-function remove(id) {
-    $.post("/remove", {id: id}, function(data) {
-        $('#'+id).hide();
+function remove(id, link) {
+    $.post("/remove", {link: link}, function(data) {
+        $('#'+id).remove();
     });
 }
 

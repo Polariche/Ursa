@@ -11,14 +11,15 @@ class Link(db.Model):
     tags = db.Column(String(200), unique=False)
     favicon = db.Column(String(200), unique=False)
 
-    def __init__(self, link=None, title=None):
+    def __init__(self, link=None, title=None, favicon=None):
         self.link = link
         self.title = title
+        self.favicon = favicon
 
     def __repr__(self):
         return f'{self.link} - {self.title}'
 
     def json(self):
-        return {'id': self.id, 'link': self.link, 'title': self.title, 'tags': self.tags}
+        return {'id': self.id, 'link': self.link, 'title': self.title, 'tags': self.tags, 'favicon': self.favicon}
 
 
