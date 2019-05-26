@@ -28,51 +28,52 @@ def fetch():
 @app.route('/save', methods=['POST'])
 def save():
     status = 500
-    reg_full = r'[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z\.]{2,5}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?'
-    reg_core = r'([https]{4,5}:\/\/[-a-zA-Z0-9@:%_\+.~#?&=]{2,256}\.[a-z\.]{2,5}\b)\/?'
-    reg_name = r'[https]{4,5}:\/\/(?:.*\.)?([-a-zA-Z0-9@:%_\+~#?&=]{1,})\.[a-z\.]{2,5}\b\/?'
     link = request.form.get('link')
+    reg_core=r'(?:[https]{4,5}:\/\/)?([-a-zA-Z0-9\.]{2,256}\.[a-z\.]{2,5}\b)([-a-zA-Z0-9@:%_\+.~#?&//=]*)?'
 
     # validity check
-    # if the links lacks scheme (httml://), add it
-    test = re.match(reg_full, link)
+    test = re.match(reg_core, link)
+
     if not test:
         status = 400
         o = {'status': status, 'message': 'Bad request'}
         return make_response(jsonify(o), status)
 
-    if link[:8] != 'https://' and link[:7] != 'http://':
-        link = 'https://'+link
 
-    corelink = re.match(reg_core, link).group(1)
+    tags = re.match(r'(#[a-zA-Z가-힣0-9])+', link[test.end():])
+    #if tags:
+    #    tags = [for i in ]
+
+    corelink = test.group(1)
+    link = f"https://{corelink}{test.group(2)}"
+
     # Some of website doesn't even respond (or lack a title), so there has to be a default title
-    title = re.match(reg_name, corelink).group(1).title()
-    print(link)
-    print(title)
+    title_match = re.match(r'(?:[-a-zA-Z0-9]{2,256}\.)*([-a-zA-Z0-9]{2,256})(\.[a-z\.]{2,5})', corelink)
+    title = title_match.group(1).title()
+    if (len(title)<=2 or title_match.group(2) == '.io'):
+        title = title + title_match.group(2)
 
     # Default values
-    o = {'link': link, 'title': title, 'favicon': corelink+'/favicon.ico'}
+    o = {'link': link, 'title': title, 'favicon': 'https://'+corelink+'/favicon.ico'}
 
     try:
+        print(link)
         rq = requests.get(url=link, timeout=3)
         txt = rq.text
 
         try:
-            o['title'] = re.search('<title>(.*?)</title', txt, re.IGNORECASE).group(1)
+            o['title'] = re.search('<title>(.*?)</title>', txt, re.IGNORECASE).group(1)
         except AttributeError:
             print("Could not find title")
 
         try:
             # higher quality
-            favicon = re.search(r'<link rel="(?:shortcut )?icon"[^>]*?href="(.*?)"', txt, re.IGNORECASE).group(1)
+            favicon = re.search(r'<link rel="(?:shortcut )?icon"[^>]*?href="(?:[https:]*\/\/)?([A-Za-z\/0-9-\.\/]*?(\.png|\.ico))(?:\?[=A-Za-z\/0-9-&]*)?"', txt, re.IGNORECASE).group(1)
             
-            if not re.search(reg_core, favicon):
+            if not re.match(reg_core, favicon):
                 favicon = corelink+favicon
 
-            if favicon[-3:] == 'png' or favicon[-3:] == 'ico':
-                o['favicon'] = favicon
-
-            print(o['favicon'])
+            o['favicon'] = 'https://'+favicon
         except AttributeError:
             print("No link rel='icon' ")
 
@@ -128,6 +129,7 @@ def edit_title():
     db.session.commit()
 
     return make_response(jsonify({'message': f'link {link} modified successfully', 'status': 200}), 200)
+
 
 
 """
