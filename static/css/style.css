@@ -1,0 +1,32 @@
+body {
+	text-align: center;
+	margin-top: 50px;
+}
+
+.form-control {
+	width: 350px;
+	margin-bottom: 1.5rem;
+}
+
+.width-full {
+	width: 100%;
+}
+
+.link-icon, img.link-icon {
+	width: 16px;
+	height: 16px;
+	
+    top:0;
+    bottom:0;
+}
+
+
+.link-text {
+	max-width: 250px;
+}
+
+.link-btn {
+	text-align: left;
+	width: 300px;
+}
+

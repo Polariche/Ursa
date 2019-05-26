@@ -1,11 +1,24 @@
 <html>
 		<head>
 			<script src="{{url_for('static', filename = 'js/jquery-3.4.1.min.js')}}"></script>
-			<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+			<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+			<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+			<link rel="stylesheet" type="text/css" href="{{url_for('static', filename = 'css/style.css')}}">
+			<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+			<script src="{{url_for('static', filename = 'js/script.js')}}"></script>
+
 		</head>
 		<body>
-			<script src="{{url_for('static', filename = 'js/script.js')}}"></script>
-			<input type="text" id="box">
-			<p id="things"></p>		
+			<div class="text-center">
+				<div id="errorbox" class="d-flex justify-content-center width-full fixed-top">
+					
+				</div>
+				<div id="fakebox" class="d-flex justify-content-center width-full sticky-top">
+					<input type="text" id="box" class="form-control float-center">
+				</div>
+				
+				<div id="things" class="btn-group-vertical"></div>		
+				
+			</div>
 		</body>
 </html>
